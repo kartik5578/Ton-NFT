@@ -50,57 +50,68 @@ function Create() {
             return;
         }
 
-        const suss = await sendIncrement(0.05);
-        console.log(suss);
-
         const formData = new FormData();
         formData.append("file", nftimage);
 
-        try {
-            const resFile = await axios({
-                method: "post",
-                url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
-                data: formData,
-                headers: {
-                    pinata_api_key: `01fde9c5bfe02c0ae7f3`,
-                    pinata_secret_api_key: `1ad2cf854fd951a91a9dd8d1e26404bc4cb107bf46bd2d5d9b60a1185f36b98f`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
 
-            const ImgHash = `https://gateway.pinata.cloud/ipfs/${resFile.data.IpfsHash}`;
-
-            const info: DataInfo = {
-                name: forminfo.title,
-                description: forminfo.description,
-                image: ImgHash,
-                price: forminfo.price,
-                owner: forminfo.owner,
+        const pinJSONToPinata = async (info: DataInfo) => {
+            const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
+            const headers = {
+                "Content-Type": "application/json",
+                pinata_api_key: `dedc16b75664bc108136`,
+                pinata_secret_api_key: `2b8fc356900683c32c2c59356ce60d2a97d2561b2d89d95efda9d02b399e44c8`,
             };
-            await pinJSONToPinata(info);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const pinJSONToPinata = async (info: DataInfo) => {
-        const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
-        const headers = {
-            "Content-Type": "application/json",
-            pinata_api_key: `dedc16b75664bc108136`,
-            pinata_secret_api_key: `2b8fc356900683c32c2c59356ce60d2a97d2561b2d89d95efda9d02b399e44c8`,
+    
+            try {
+                const res = await axios.post(url, info, { headers });
+                const meta =
+                    "https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}";
+                console.log(meta);
+                console.log(res);
+            } catch (error) {
+                console.error(error);
+            }
         };
 
-        try {
-            const res = await axios.post(url, info, { headers });
-            const meta =
-                "https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}";
-            console.log(meta);
-            console.log(res);
-        } catch (error) {
-            console.error(error);
-        }
+        sendIncrement(0.05).then(async ()=>{
+                alert("transaction done");
+
+                try {
+                    const resFile = await axios({
+                        method: "post",
+                        url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
+                        data: formData,
+                        headers: {
+                            pinata_api_key: `01fde9c5bfe02c0ae7f3`,
+                            pinata_secret_api_key: `1ad2cf854fd951a91a9dd8d1e26404bc4cb107bf46bd2d5d9b60a1185f36b98f`,
+                            "Content-Type": "multipart/form-data",
+                        },
+                    });
+        
+                    const ImgHash = `https://gateway.pinata.cloud/ipfs/${resFile.data.IpfsHash}`;
+        
+                    const info: DataInfo = {
+                        name: forminfo.title,
+                        description: forminfo.description,
+                        image: ImgHash,
+                        price: forminfo.price,
+                        owner: forminfo.owner,
+                    };
+                    await pinJSONToPinata(info);
+                } catch (error) {
+                    console.error(error);
+                }
+        }).catch((err) =>{
+            alert(err);
+        });
+        // console.log(suss);
+
+       
+
+       
     };
+
+    
 
     return (
         <div className="h-screen pt-24">
